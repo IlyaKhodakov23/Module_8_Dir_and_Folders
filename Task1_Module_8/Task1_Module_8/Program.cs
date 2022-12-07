@@ -5,51 +5,89 @@
         static string dirName = @"C:\Users\user\Desktop\IT\OldDir";
         static void Main(string[] args)
         {
-
-            //Console.WriteLine(TimeSpan.FromMinutes(30));
             DeleteOldCatalogs(dirName);
         }
 
         static void DeleteOldCatalogs(string dir)
         {
-            if (Directory.Exists(dir))
+            //Создаем объект папки
+            DirectoryInfo dirInfo = new DirectoryInfo(dir);
+            //FileInfo fileInfo = new FileInfo(dir);
+            //Если существует
+            if (dirInfo.Exists)
             {
                 Console.WriteLine("Папки:");
-                string[] catalogs = Directory.GetDirectories(dir);
-                foreach (string c in catalogs)
+                //Получаем Папки из директории
+                DirectoryInfo[] catalogs = dirInfo.GetDirectories();
+                //Проходимся по папкам
+                foreach (DirectoryInfo c in catalogs)
                 {
                     try
                     {
+                        //Новый объект папка внутри директории
+                        DirectoryInfo dirInfo2 = new DirectoryInfo(c.FullName);
                         Console.WriteLine(c);
-                        Console.WriteLine($"Не использовалась: {TimeSpan.FromMinutes(30)}");
-                        //if ("Указать что если файлы не используются больше 30 минут")
-                        //{
-                        //    Console.WriteLine("Папка будет удалена.");
-                        // Удаляем папку рекурсивно
-                        //    Directory.Delete(c, true);
-                        //}
+                        //Находим время с момента последнего доступа
+                        TimeSpan diff = DateTime.Now.Subtract(dirInfo2.LastAccessTime);
+                        Console.WriteLine(dirInfo2.LastAccessTime);
+                        Console.WriteLine($"Не использовалась: {diff}");
+                        //Если более 30 минут то удаляем
+                        if (diff > TimeSpan.FromMinutes(30))
+                        {
+                            Console.WriteLine("Папка будет удалена.");
+                            // Удаляем папку рекурсивно
+                            dirInfo2.Delete(true);
+                        }
+                        else Console.WriteLine("Папка менялась менее 30 минут назад");
                     }
-                    catch (Exception e)
+                    //Начинаем перехватывать ошибки
+                    //DirectoryNotFoundException - директория не найдена
+                    catch (DirectoryNotFoundException ex)
                     {
-                        Console.WriteLine(e.Message);
+                        Console.WriteLine("Директория не найдена. Ошибка: " + ex.Message);
+                    }
+                    //UnauthorizedAccessException - отсутствует доступ к файлу или папке
+                    catch (UnauthorizedAccessException ex)
+                    {
+                        Console.WriteLine("Отсутствует доступ. Ошибка: " + ex.Message);
+                    }
+                    //Во всех остальных случаях
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Произошла ошибка. Ошибка: " + ex.Message);
                     }
                 }
-                string[] files = Directory.GetFiles(dir);
-                foreach (string file in files)
+                //Находим все файлы внутри папки и прохоимся по ним делая аналогичные действия
+                FileInfo[] files = dirInfo.GetFiles();
+                foreach (FileInfo file in files)
                 {
                     try
                     {
+                        FileInfo fileInfo1 = new FileInfo(file.FullName);
                         Console.WriteLine(file);
-                        Console.WriteLine($"Не использовался: {TimeSpan.FromMinutes(30)}");
-                        if ("Указать что если файлы не используются больше 30 минут")
+                        TimeSpan diff = DateTime.Now.Subtract(fileInfo1.LastAccessTime);
+                        Console.WriteLine(diff);
+                        Console.WriteLine($"Не использовался: {diff}");
+                        if (diff > TimeSpan.FromMinutes(30))
                         {
                             Console.WriteLine("Файл будет удален.");
-                            File.Delete(file);
+                            fileInfo1.Delete();
                         }
+                        else Console.WriteLine("Файл менялся менее 30 минут назад");
                     }
-                    catch (Exception e)
+                    catch (DirectoryNotFoundException ex)
                     {
-                        Console.WriteLine(e.Message);
+                        Console.WriteLine("Директория не найдена. Ошибка: " + ex.Message);
+                    }
+                    //UnauthorizedAccessException - отсутствует доступ к файлу или папке
+                    catch (UnauthorizedAccessException ex)
+                    {
+                        Console.WriteLine("Отсутствует доступ. Ошибка: " + ex.Message);
+                    }
+                    //Во всех остальных случаях
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Произошла ошибка. Ошибка: " + ex.Message);
                     }
                 }
             }
