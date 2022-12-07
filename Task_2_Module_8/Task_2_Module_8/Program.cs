@@ -2,6 +2,8 @@
 {
     internal class Program
     {
+        //Напишите программу, которая считает размер папки на диске (вместе со всеми вложенными папками и файлами).
+        //На вход метод принимает URL директории, в ответ — размер в байтах.
         //Путь к папке
         static string dirName = @"C:\Users\user\Desktop\IT\OldDir";
         static void Main(string[] args)
